@@ -1,0 +1,526 @@
+<script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+
+
+  
+    callFlow();
+    
+});
+{% assign recordId = request.params['id'] %}
+</script>
+
+{% fetchxml section_fetch %} 
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
+    <entity name="int_section">
+      <attribute name="int_sectionid" />
+      <attribute name="int_name" />
+      <attribute name="createdon" />
+      <attribute name="int_schemaname" />
+      <order attribute="int_name" descending="false" />
+      <link-entity name="int_questionnairequestion" from="int_sections" to="int_sectionid" link-type="inner" alias="am">
+        <filter type="and">
+          <condition attribute="int_questionnaire" operator="eq" uiname="BR1" uitype="int_questionaire" value="{{recordId}}" />
+        </filter>
+      </link-entity>
+    </entity>
+  </fetch>
+    {% endfetchxml %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functional Requirements</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul>
+             {% for sections in section_fetch.results.entities %}
+                <li><button onclick="changeSection('{{ sections.int_schemaname }}')">{{ sections.int_name }}</button></li>
+                 {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>Functional Requirements</h1>
+            
+
+            <table id="requirementsTable">
+                <thead>
+                    <tr>
+                        <th>Requirement</th>
+                        <th>Required (MoSCoW)?</th>
+                        <th>Notes</th>
+                        <th>Must</th>
+                        <th>Should</th>
+                        <th>Could</th>
+                        <th>Not</th>
+                        <th>Unsure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically populated here -->
+                </tbody>
+            </table>
+            <div class="submit-container">
+                <button id="previousButton" class="btn btn-primary">Previous</button>
+                <button id="nextButton" class="btn btn-primary">Next</button>
+                <button id="submitButton" class="btn btn-primary" onclick="sendSelectedData()">Submit Response</button>
+            </div>
+        </div>
+        
+    </div>
+    
+</body>
+</html>
+<style>
+
+/* General styles */
+
+
+.container {
+    display: flex;
+    height: auto;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 10px 0;
+}
+
+.sidebar ul li button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.sidebar ul li button:hover {
+    background-color: #ddd;
+}
+
+.sidebar ul li button:focus {
+    font-weight: bold;
+    color: blue;
+}
+
+/* Main content styles */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.main-content h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.controls .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead th {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Notes and info icon styles */
+.info {
+    font-size: 14px;
+    color: gray;
+    cursor: help;
+}
+
+.notes {
+    background: url('comment-icon.png') no-repeat center;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Radio buttons */
+input[type="radio"] {
+    margin-left: 10px;
+}
+
+</style>
+
+
+<script>
+  let selectedQuestions = {};
+  let currentSectionIndex = 0;
+  const storedRequirements1 = localStorage.getItem('functionalRequirements');
+  const requirementsObject1 = JSON.parse(storedRequirements1);
+  const sectionOrder = Object.keys(requirementsObject1);
+function callFlow() {
+debugger
+  //const url = new URL(window.location.href);
+
+// Use URLSearchParams to extract the ID
+const id ="1234"; //$("#EntityFormView_EntityID").val();//url.searchParams.get("id");
+
+console.log(id);
+    var parameter1 = id;
+    let parameter2 = "parameter2";
+
+    let body = {
+        "Parameter1": id,
+        "Parameter2": parameter2
+    };
+
+    let req = new XMLHttpRequest();
+    req.open("POST", "https://prod-20.uksouth.logic.azure.com:443/workflows/4b269da3d2294bfcaebda136e884e727/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bbS5hCZNg4HpwTqaIdjFbT45issmK5YUqZ51PbR5cEA", true);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.onreadystatechange = function () {
+        if (this.readyState === 4) {
+            req.onreadystatechange = null;
+            if (this.status === 200) {
+                let resultJson = this.response;
+
+                
+                console.log(JSON.stringify(req.responseText));
+                loadAndMapData(JSON.stringify(req.responseText));
+               // loadAndMapData();
+                
+            } else {
+                console.log(this.statusText);
+            }
+        }
+    };
+    req.send(JSON.stringify(body));
+}
+
+async function loadAndMapData(cde) {
+    debugger
+    const apiData_1 = JSON.parse(cde);//await fetchData(cde);
+    const apiData=JSON.parse(apiData_1);
+   // const apiData=apiData1.replace(/"/g, '');
+    // Initialize your sections object
+    const sections = {
+        general: [],
+        finance: [],
+        sales: [],
+        inventory: [],
+        warehouse: [],
+        manufacturing: []
+    };
+
+    // Map and sort data into sections
+    apiData.forEach(item => {
+        // Extract relevant fields
+        const questionText = item.int_questiontext;
+        const sectionName = item["_int_sections_value@OData.Community.Display.V1.FormattedValue"];
+        const questionId = item.int_questionid;
+
+        // Normalize section names to match your section keys
+        let sectionKey;
+        switch (sectionName) {
+            case 'General System':
+                sectionKey = 'general';
+                break;
+            case 'Finance':
+                sectionKey = 'finance';
+                break;
+            case 'Sales':
+                sectionKey = 'sales';
+                break;
+            case 'Inventory':
+                sectionKey = 'inventory';
+                break;
+            case 'Warehouse':
+                sectionKey = 'warehouse';
+                break;
+            case 'Manufacturing':
+                sectionKey = 'manufacturing';
+                break;
+            default:
+                sectionKey = null; // Ignore unknown sections
+        }
+
+        // Add the question to the appropriate section
+        if (sectionKey) {
+            sections[sectionKey].push({name: questionText,notes: questionId,info:  "i"});
+        }
+        localStorage.setItem('functionalRequirements', JSON.stringify(sections));
+    });
+
+    // Log the sorted sections
+    console.log(sections); // Check the mapped data
+    localStorage.setItem('functionalRequirements', JSON.stringify(sections));
+
+    
+    // Update your section order and change the section if needed
+    //const sectionOrder = Object.keys(sections);
+    
+    changeSection(sectionOrder[currentSectionIndex]);
+}
+document.getElementById('nextButton').addEventListener('click', () => {
+  const radioGroups = {};
+  let isValid = true;
+
+  // Collect all radio buttons
+  const radios = document.querySelectorAll('input[type="radio"]');
+
+  // Group the radios by their name attribute
+  radios.forEach((radio) => {
+    if (!radioGroups[radio.name]) {
+      radioGroups[radio.name] = [];
+    }
+    radioGroups[radio.name].push(radio);
+  });
+
+  // Check if at least one radio button in each group is checked
+  for (let groupName in radioGroups) {
+    const group = radioGroups[groupName];
+    const groupIsValid = group.some((radio) => radio.checked);
+
+    if (!groupIsValid) {
+      isValid = false;
+      break;
+    }
+  }
+
+  // Handle the validation result
+  if (!isValid) {
+    alert('Please complete the current section before proceeding.');
+  } else {
+    currentSectionIndex++;
+    changeSection(sectionOrder[currentSectionIndex]);
+  }
+});
+
+// const sectionOrder = Object.keys(sections);  // ["general", "finance", "sales", ...]
+   // let currentSectionIndex = 0;
+    
+    // Function to handle the "Next" button click
+    document.getElementById('nextButton1').addEventListener('click', () => {
+        debugger
+        if (currentSectionIndex < sectionOrder.length - 1) {
+            currentSectionIndex++;
+            changeSection(sectionOrder[currentSectionIndex]);
+        }
+    });
+    
+    // Function to handle the "Previous" button click
+    document.getElementById('previousButton').addEventListener('click', () => {
+        debugger
+        if (currentSectionIndex > 0) {
+            currentSectionIndex--;
+            changeSection(sectionOrder[currentSectionIndex]);
+        }
+    });
+    // Load the 'General System' section by default on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        changeSection('finance');
+    });
+    
+    
+    //New Code implementation
+    // Store selected question data
+    
+    
+    // Function to change the section
+    function changeSection(section) {
+debugger;
+      
+        const tableBody = document.querySelector('#requirementsTable tbody');
+        tableBody.innerHTML = ''; // Clear the current table content
+        const storedRequirements = localStorage.getItem('functionalRequirements');
+        const requirementsObject = JSON.parse(storedRequirements);
+        // Get the selected section data
+        const requirements = requirementsObject[section];
+    
+        // Populate the table with the new section data
+        requirements.forEach((req) => {
+            const selectedValue = selectedQuestions[req.notes] || ""; // Get the previously selected value if any
+    
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${req.name}</td>
+                <td><i class="info">${req.info}</i></td>
+                <td><i class="notes"></i></td>
+                <td><input type="radio" name="${req.notes}" value="Must" 
+                    ${selectedValue === 'Must' ? 'checked' : ''} 
+                    onchange="captureSelection('${req.notes}', 'Must')" required /></td>
+                <td><input type="radio" name="${req.notes}" value="Should" 
+                    ${selectedValue === 'Should' ? 'checked' : ''} 
+                    onchange="captureSelection('${req.notes}', 'Should')" required /></td>
+                <td><input type="radio" name="${req.notes}" value="Could" 
+                    ${selectedValue === 'Could' ? 'checked' : ''} 
+                    onchange="captureSelection('${req.notes}', 'Could')" required /></td>
+                <td><input type="radio" name="${req.notes}" value="Not" 
+                    ${selectedValue === 'Not' ? 'checked' : ''} 
+                    onchange="captureSelection('${req.notes}', 'Not')" required /></td>
+                <td><input type="radio" name="${req.notes}" value="Unsure" 
+                    ${selectedValue === 'Unsure' ? 'checked' : ''} 
+                    onchange="captureSelection('${req.notes}', 'Unsure')" required /></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    
+        // Update the "Next" and "Previous" buttons' disabled state
+        document.getElementById('previousButton').disabled = (currentSectionIndex === 0);
+        document.getElementById('nextButton').disabled = (currentSectionIndex === sectionOrder.length - 1);
+    }
+    
+    // Function to capture checkbox selection and store it in an object
+    function captureSelection(questionName, value) {
+        selectedQuestions[questionName] = value;
+        console.log(selectedQuestions); // For debugging, view the stored selections in the console
+       
+        const transformedData = transformSelectedQuestions(selectedQuestions);
+        localStorage.setItem('selectedQuestions', JSON.stringify(transformedData));
+    }
+    
+    // Function to send selected data via API
+    function sendSelectedData() {
+        debugger;
+        $.LoadingOverlay("show");
+        const url = window.location.href;
+  const id = getIdFromUrl(url);
+  console.log(id);  // Output: 12311
+
+  const Curl = window.location.href;
+  const Conid = contactgetIdFromUrl(url);
+  console.log(Conid);  // Output: 12311
+
+        // The API endpoint (replace with your actual API URL)
+        const apiUrl = 'https://prod-07.uksouth.logic.azure.com:443/workflows/3c4775e54623445db71e197b8fec5845/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=AGieZAB87z7o5JwY1pHcdiC5-vnOVqUkEAyuTDWNCM8';
+    
+        const transformedData = transformSelectedQuestions(selectedQuestions);
+        let surveyData = {
+                
+                recordId: id,//"e76419b7-3565-ef11-a670-7c1e522ec4cd",  
+                contactId: Conid,//"2fe88299-c5c7-ed11-b597-00224843863c",
+                questions: transformedData
+            };
+        // Send the selected data to the API
+        fetch(apiUrl, {
+            method: 'POST', // Use POST to send data
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                questions: surveyData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            alert('Data submitted successfully!');
+            $.LoadingOverlay("hide");
+            window.location.href = '/';
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('There was an error submitting the data.');
+            $.LoadingOverlay("hide");
+        });
+    }
+
+
+// Function to transform the object into an array of objects
+function transformSelectedQuestions(selectedQuestions) {
+    let transformedArray = [];
+
+    // Loop through each key (question) and value (answer)
+    for (const question in selectedQuestions) {
+        let questionObj = {
+            "QuestionName": question,  // The key is the question
+            "Answer": selectedQuestions[question]  // The value is the answer
+        };
+        transformedArray.push(questionObj); // Add the object to the array
+    }
+
+    return transformedArray;
+}
+
+    // Function to transform selectedQuestions into the desired format
+function transformSelectedQuestions1() {
+
+    debugger
+    let selectedQuestions1 = JSON.parse(localStorage.getItem('selectedQuestions')) || {};
+    let transformedData = [];
+
+    // Loop through each section
+    for (const section in selectedQuestions) {
+        // Loop through each question in the section
+        for (const questionName in selectedQuestions1[section]) {
+            let questionObj = {
+                "QuestionName": questionName,
+                "Answer": selectedQuestions1[section][questionName].value || "" // Get the selected value
+            };
+            transformedData.push(questionObj); // Add to transformed data array
+        }
+    }
+
+    return transformedData;
+}
+
+    
+    // Example of submitting the data via a button click
+    document.getElementById('#submitButton').addEventListener('click', sendSelectedData);
+    
+ 
+    function getIdFromUrl(url) {
+      const urlParams = new URL(url).searchParams;
+      return urlParams.get('id');
+  }
+  function contactgetIdFromUrl(url) {
+      const urlParams = new URL(url).searchParams;
+      return urlParams.get('conid');
+  }
+  
+    
+    
+    </script>
